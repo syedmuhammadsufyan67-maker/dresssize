@@ -1,0 +1,205 @@
+<style>
+.dress-size-calculator {
+  max-width: 520px;
+  margin: 30px auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  font-family: Arial, sans-serif;
+  background: #f9f9f9;
+}
+
+.dress-size-calculator h2 {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+}
+
+@media (max-width: 600px) {
+  .row {
+    flex-direction: column;
+  }
+}
+
+label {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin: 6px 0 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  outline: none;
+  box-sizing: border-box;
+}
+
+/* ✅ BUTTON FIXED (VISIBLE ON WHITE BG) */
+button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  background: #000;
+  color: #fff;
+  border: 1px solid #000;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  background: #222;
+  border-color: #222;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+button:focus {
+  outline: 2px solid #000;
+  outline-offset: 2px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.actions button {
+  width: 100%;
+}
+
+#resultBox {
+  margin-top: 15px;
+  padding: 12px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #ddd;
+}
+
+.small-note {
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+  margin-top: 5px;
+}
+</style>
+
+<div class="dress-size-calculator">
+  <h2>Dress Size Calculator (V2)</h2>
+
+  <label>Unit</label>
+  <select id="unit">
+    <option value="inch">Inches</option>
+    <option value="cm">CM</option>
+  </select>
+
+  <div class="row">
+    <div>
+      <label>Bust</label>
+      <input type="number" id="bust" placeholder="Enter bust">
+    </div>
+    <div>
+      <label>Waist</label>
+      <input type="number" id="waist" placeholder="Enter waist">
+    </div>
+  </div>
+
+  <div class="row">
+    <div>
+      <label>Hips</label>
+      <input type="number" id="hips" placeholder="Enter hips">
+    </div>
+    <div>
+      <label>Height (optional)</label>
+      <input type="number" id="height" placeholder="Height">
+    </div>
+  </div>
+
+  <label>Weight (optional)</label>
+  <input type="number" id="weight" placeholder="Weight">
+
+  <div class="actions">
+    <button onclick="calculateDressSize()">Calculate</button>
+    <button onclick="resetForm()">Reset</button>
+  </div>
+
+  <button onclick="copyResult()">Copy Result</button>
+
+  <div id="resultBox">Your size will appear here</div>
+  <div class="small-note">Tip: Accurate measurements = better size result</div>
+</div>
+
+<script>
+function getVal(id) {
+  let v = parseFloat(document.getElementById(id).value);
+  return isNaN(v) ? null : v;
+}
+
+function convert(value, unit) {
+  if (!value) return null;
+  return unit === "cm" ? value / 2.54 : value;
+}
+
+function calculateDressSize() {
+  let unit = document.getElementById("unit").value;
+
+  let bust = convert(getVal("bust"), unit);
+  let waist = convert(getVal("waist"), unit);
+  let hips = convert(getVal("hips"), unit);
+
+  let height = getVal("height");
+  let weight = getVal("weight");
+
+  let resultBox = document.getElementById("resultBox");
+
+  if (!bust || !waist || !hips) {
+    resultBox.innerHTML = "⚠️ Please enter valid measurements";
+    return;
+  }
+
+  let avg = (bust + waist + hips) / 3;
+
+  let size = "";
+
+  if (avg <= 32) size = "XS";
+  else if (avg <= 34) size = "S";
+  else if (avg <= 36) size = "M";
+  else if (avg <= 38) size = "L";
+  else if (avg <= 40) size = "XL";
+  else size = "XXL";
+
+  // smart adjustment
+  if (height && height > 175 && size === "M") size = "L";
+  if (weight && weight > 75 && size === "S") size = "M";
+
+  resultBox.innerHTML = "✅ Recommended Size: <b>" + size + "</b>";
+}
+
+function resetForm() {
+  document.querySelectorAll("input").forEach(i => i.value = "");
+  document.getElementById("resultBox").innerHTML = "Your size will appear here";
+}
+
+function copyResult() {
+  let text = document.getElementById("resultBox").innerText;
+  navigator.clipboard.writeText(text);
+  alert("Result copied!");
+}
+
+// live calculation
+document.querySelectorAll("input, select").forEach(el => {
+  el.addEventListener("input", calculateDressSize);
+});
+</script>
